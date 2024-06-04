@@ -16,4 +16,13 @@ $$P(T|\lbrace t_e\rbrace, \alpha, D) = \frac{P(D|T, \lbrace t_e\rbrace, \alpha) 
 
 where $P(D|\lbrace t_e\rbrace, \alpha) = P(D)$ and $P(T|\lbrace t_e\rbrace, \alpha) = P(T)$ hold for the marginal likelihood and the prior probability distribution for the tree, respectively, and where $P(D|T)=\mathcal{L}(T)$ is the likelihood function for the selected tree $T$.
 
+The second and third terms can be simplified as:
+$$P(\lbrace t_e\rbrace|D) = \frac{P(D|\lbrace t_e\rbrace) \cdot P(\lbrace t_e\rbrace)}{P(D)} = P(\lbrace t_e\rbrace)$$
+$$P(\alpha|D) = \frac{P(D|\alpha) \cdot P(\alpha)}{P(D)} = P(\alpha)$$
+since the data doesn't solely depend on the values of the edge lengths and of $\alpha$, but only when these are combined with a tree topology. In other words, the data doesn't update our beliefs on what should be the probability distribution for these parameters. Certainly, if the data is very variable, we could say that it is a consequence of the fact that the substitution rate $\alpha$ is big, or that the edges are especially long. Therefore, they are simply represented by their prior probability distributions, which we may consider uniform on some range of values. 
+
+In summary,
+
+$$P(\boldsymbol{\theta}|D) =\frac{\mathcal{L} \cdot P(T)}{P(D)} \cdot P(\lbrace t_e\rbrace) \cdot P(\alpha) \propto \mathcal{L}$$
+
 In the framework of our MCMC sampling algorithm, the likelihood is the only function that is of interest for computing the Metropolis acceptance ratio.
