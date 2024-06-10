@@ -1,5 +1,37 @@
 # Bayesian inference on phylogenetic trees
 
+## Jukes-Cantor base substitution model
+
+$$
+p_\boldsymbol{\rho} = \left(\frac{1}{4}, \frac{1}{4}, \frac{1}{4}, \frac{1}{4}\right)
+$$
+
+Define $\alpha$ as the rate of base substitution per unit time: $\alpha = \frac{\textit{number of base substitutions}}{\textit{unit time}}$
+
+$$
+Q = 
+\begin{pmatrix}
+-\alpha & \alpha/3 & \alpha/3 & \alpha/3 \\
+\alpha/3 & -\alpha & \alpha/3 & \alpha/3 \\
+\alpha/3 & \alpha/3 & -\alpha & \alpha/3 \\
+\alpha/3 & \alpha/3 & \alpha/3 & -\alpha \\
+\end{pmatrix}
+$$
+
+Markov matrix:
+
+$$
+M = e^{Qt} = 
+\begin{pmatrix}
+1-a & a/3 & a/3 & a/3 \\
+a/3 & 1-a & a/3 & a/3 \\
+a/3 & a/3 & 1-a & a/3 \\
+a/3 & a/3 & a/3 & 1-a \\
+\end{pmatrix}
+$$
+
+where $a = a(t) = \frac{3}{4}\left(1-e^{-\frac{4}{3}\alpha t}\right)$ is the probability that a base mutates to a different base over time $t$.
+
 ## Sampling parameter space
 
 The parameters of our Jukes-Cantor model are: 
