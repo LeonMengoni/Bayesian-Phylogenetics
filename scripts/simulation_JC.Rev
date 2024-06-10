@@ -1,0 +1,115 @@
+################################################################################
+#
+# RevBayes Example: Sequence simulation using a
+#                   Jukes-Cantor model of DNA substitution.
+#
+#
+# authors: Bastien Boussau
+#
+################################################################################
+
+
+### Read in alignment data for a single gene
+# We read in data to get names for the tips of the tree, and a number of tips
+# and sequence length for the simulation.
+
+data = readDiscreteCharacterData("data/primates_and_galeopterus_cytb.nex")
+
+# Get some useful variables from the data. We need these later on.
+num_taxa <- data.ntaxa()
+num_branches <- 2 * num_taxa - 3
+taxa <- data.taxa()
+num_sites <- data.nchar()
+
+#----------------------------#
+## Why are we using "<-" and not ":=" or "~"?
+#----------------------------#
+
+######################
+# Substitution Model #
+######################
+
+# create a constant variable for the (constant !) rate matrix
+Q <- fnJC(4)
+
+#----------------------------#
+## What does the "4" stand for?
+#----------------------------#
+
+##############
+# Tree model #
+##############
+
+# We choose an outgroup.
+out_group = clade("Galeopterus_variegatus")
+
+#----------------------------#
+## Is this outgroup arbitrary?
+#----------------------------#
+
+# Prior distribution on the tree topology
+topology ~ dnUniformTopology(taxa, outgroup=out_group)
+
+#----------------------------#
+## Why did we use "~" here?
+#----------------------------#
+
+# Branch length prior
+for (i in 1:num_branches) {
+    bl[i] ~ dnExponential(10.0)
+}
+
+#----------------------------#
+## What is the expected branch length according to this exponential prior?
+#----------------------------#
+
+psi := treeAssembly(topology, bl)
+
+#----------------------------#
+## What purpose serves the function "treeAssembly"?
+#----------------------------#
+
+##################################
+# PhyloCTMC Model and Simulation #
+##################################
+
+# the sequence evolution model
+seq ~ dnPhyloCTMC(tree=psi, Q=Q, type="DNA", nSites=num_sites)
+
+# Sequences have been simulated, we can output them to a file:
+writeFasta(filename="data/simulatedSequences_1.fasta", data=seq)
+
+# Let's simulate another data set
+seq.redraw()
+
+# And write them to another file:
+writeFasta(filename="data/simulatedSequences_2.fasta", data=seq)
+
+
+#----------------------------#
+## You may explore these two data sets in a text editor or seaview
+#----------------------------#
+
+
+################################################################
+# Comparison between the empirical and the simulated data sets #
+################################################################
+
+# The sequence data objects ("AbstractHomologousDiscreteCharacterData")
+# have lots of functions that we can use:
+data.methods()
+
+# Let's use some of them to compare the empirical data to the simulated data set:
+print("Mean GC content of the empirical data: " + data.meanGcContent())
+print("Mean GC content of the simulated data: " + seq.meanGcContent())
+print("Variance of the GC content of the empirical data: " + data.varGcContent())
+print("Variance of the GC content of the simulated data: " + seq.varGcContent())
+
+
+#----------------------------#
+## How do you interpret these results?
+#----------------------------#
+
+
+## If we want to quit RevBayes at the end of the script:
+# q()

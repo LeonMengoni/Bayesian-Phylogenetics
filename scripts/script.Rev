@@ -1,0 +1,57 @@
+# Load the data
+data <- readDiscreteCharacterData("random_sequences.nex")
+
+# Display the data summary
+print(data)
+
+# Number of taxa
+num_taxa <- data.ntaxa()
+num_branches <- 2 * num_taxa - 3
+
+# Extract taxa
+taxa <- data.taxa()
+
+# Initialize vectors for moves and monitors
+moves    = VectorMoves()
+monitors = VectorMonitors()
+
+# Define the Jukes-Cantor substitution model
+Q <- fnJC(4)
+
+
+# Define the outgroup
+out_group = clade([ "Species_3"])
+
+# Define the uniform topology prior
+topology ~ dnUniformTopology(taxa, outgroup=out_group)
+
+# Add a move to the moves vector using NNI
+moves.append( mvNNI(topology, weight=num_taxa) )
+
+# Check the resulting objects
+for (i in 1:num_branches) {
+   br_lens[i] ~ dnUniform(0.0, 3.0)
+   moves.append( mvScale(br_lens[i]) )
+}
+
+TL := sum(br_lens)
+
+psi := treeAssembly(topology, br_lens)
+seq ~ dnPhyloCTMC(tree=psi, Q=Q, type="DNA")
+seq.clamp(data)
+mymodel = model(Q)
+mymodel
+
+monitors.append( mnModel(filename="output/primates_cytb_JC.log", printgen=10) )
+
+
+monitors.append( mnFile(filename="output/primates_cytb_JC.trees", printgen=10, psi) )
+
+monitors.append( mnScreen(printgen=100, TL) )
+
+mymcmc = mcmc(mymodel, monitors, moves)
+
+mymcmc.run(generations=100000, checkpointInterval=100, checkpointFile="mnt/d/infth/output")
+
+
+

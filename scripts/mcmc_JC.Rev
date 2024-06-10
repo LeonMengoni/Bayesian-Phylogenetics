@@ -1,0 +1,89 @@
+data = readDiscreteCharacterData("data/primates_and_galeopterus_cytb.nex")
+
+# Get some useful variables from the data. We need these later on.
+num_taxa <- data.ntaxa()
+num_branches <- 2 * num_taxa - 3
+taxa <- data.taxa()
+
+Q <- fnJC(4)
+
+out_group = clade("Galeopterus_variegatus")
+topology ~ dnUniformTopology(taxa, outgroup=out_group)
+
+for (i in 1:num_branches) {
+    bl[i] ~ dnExponential(10.0)
+}
+
+TL := sum(bl) # Tree length
+
+psi := treeAssembly(topology, bl)
+
+seq ~ dnPhyloCTMC(tree=psi, Q=Q, type="DNA")
+# attach the data
+seq.clamp(data)
+
+# Any node of the model can be used to create it:
+mymodel = model(psi)
+
+########################
+# Specifying the moves #
+########################
+# For each stochastic variable, one has to encode moves, so that the MCMC algorithm
+# samples from them.
+moves    = VectorMoves()
+
+# Topological moves on the topology
+# We do nearest neighbor interchanges: the simplest type of move, that
+# involves swapping subtrees around an internal branch
+moves.append( mvNNI(topology, weight=3) )
+# We could do SPR moves, which involve pruning a subtree and regrafting  it
+# somewhere else in the tree.
+# moves.append( mvSPR(topology, weight=3) )
+
+# Moves on the branch lengths:
+for (i in 1:num_branches) {
+    moves.append( mvScale(bl[i]) )
+}
+
+
+#######################
+# Specifying monitors #
+#######################
+monitors = VectorMonitors()
+
+
+# add monitors
+monitors.append( mnScreen(TL, printgen=100) )
+monitors.append( mnFile(psi, filename="analyses/primates_cytb_JC.trees", printgen=1) )
+monitors.append( mnModel(filename="analyses/primates_cytb_JC.log", printgen=1) )
+
+
+################################
+# Performing the MCMC sampling #
+################################
+
+# run the analysis
+mymcmc = mcmc(mymodel, moves, monitors, nruns=1)
+# Alternative: we could do 4 runs, which is useful for checking convergence of
+# the MCMC sampling. In that case, one can run all 4 chains with the following
+# line, and still produce a long trace file in which all 4 chains are mixed.
+# mymcmc = mcmc(mymodel, moves, monitors, nruns=4, combine="mixed")
+
+# Actually run the MCMC. Here we only 2500 iterations in the interest of time,
+# but in an analysis of empirical data, more iterations would be recommended.
+mymcmc.run(generations=3000, tuningInterval=100)
+
+
+###################
+# Post processing #
+###################
+
+# Now, we will analyze the tree output.
+# Let us start by reading in the tree trace
+treetrace = readTreeTrace("analyses/primates_cytb_JC.trees", treetype="non-clock")
+# and then get the Maximum a Posteriori tree
+map_tree = mapTree(treetrace,"analyses/primates_cytb_JC_MAP.tree")
+
+
+# you may want to quit RevBayes now
+# q()
