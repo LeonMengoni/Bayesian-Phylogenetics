@@ -6,7 +6,7 @@ $$
 p_\boldsymbol{\rho} = \left(\frac{1}{4}, \frac{1}{4}, \frac{1}{4}, \frac{1}{4}\right)
 $$
 
-Define $\alpha$ as the rate of base substitution per unit time: $\alpha = \frac{\textit{number of base substitutions}}{\textit{unit time}}$
+Define $\alpha$ as the rate of base substitution per site per unit time: $\alpha = \frac{\textit{number of base substitutions}}{\textit{site}\cdot\textit{unit time}}$
 
 $$
 Q = 
@@ -30,7 +30,7 @@ a/3 & a/3 & a/3 & 1-a \\
 \end{pmatrix}
 $$
 
-where $a = a(t) = \frac{3}{4}\left(1-e^{-\frac{4}{3}\alpha t}\right)$ is the probability that a base mutates to a different base over time $t$.
+where $a = a(t) = \frac{3}{4}\left(1-e^{-\frac{4}{3}\alpha t}\right)$ is the probability that a base mutates to a different base over time $t$. Here, we can call the product $\alpha t$ the \textit{branch length} $d = \alpha t$, which is the average number of base substitutions per site. This number can be greater than 1 (it is not the Hamming distance, but the Jukes-Cantor distance) since it includes the possibility for multiple hidden substitutions at a site.
 
 ## Sampling parameter space
 
