@@ -26,3 +26,9 @@ In summary,
 $$P(\boldsymbol{\theta}|D) =\frac{\mathcal{L} \cdot P(T)}{P(D)} \cdot P(\lbrace t_e\rbrace) \cdot P(\alpha) \propto \mathcal{L}$$
 
 In the framework of our MCMC sampling algorithm, the likelihood is the only function that is of interest for computing the Metropolis acceptance ratio.
+
+
+**NOTE**
+Branch lengths sampled by the RevBayes algorithm:
+- terminal branches are typically longer
+- internal branches are shorter
