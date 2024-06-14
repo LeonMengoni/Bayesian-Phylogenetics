@@ -63,7 +63,7 @@ $$
 
 At this point, we assume a **molecular clock**, i.e. a constant mutation rate $\alpha$ over evolutionary times. This allows us to define the _branch length_ $d = \alpha t$, which is the average number of base substitutions per site over elapsed time $t$. This number can be greater than 1 since it admits the possibility of multiple hidden substitutions at a site.
 
-## Bayesian inference
+## Bayesian inference TODO
 
 The parameters of our Jukes-Cantor model are: 
 $$\boldsymbol{\theta} = (T, \lbrace t_e\rbrace_{e \in E(T)}, \alpha)$$
@@ -90,7 +90,7 @@ $$P(\boldsymbol{\theta}|D) =\frac{\mathcal{L} \cdot P(T)}{P(D)} \cdot P(\lbrace 
 
 In the framework of our MCMC sampling algorithm, the likelihood is the only function that is of interest for computing the Metropolis acceptance ratio.
 
-## Felsenstein's pruning algorithm
+## Felsenstein's pruning algorithm TODO
 
 
 **NOTE**
