@@ -17,26 +17,27 @@ Hylobates_lar                  ATGACCCCCC...
 Pan_paniscus                   ATGACCCCAA...
 ```
 
-We assume that these species are descendants of a common ancestor, and that their DNA sequences have evolved from their ancestors' DNA by nucleotide substitution. **Nucleotide substitution** refers to the process by which one nucleotide (A, T, C, or G) in a DNA sequence is replaced by another over time. These substitutions occur due to various evolutionary forces such as mutations, natural selection, genetic drift, and recombination. To accurately infer evolutionary relationships, scientists use models of nucleotide substitution. These models describe the rates at which one nucleotide is expected to be replaced by another over evolutionary time. Several models exist, ranging from simple to complex (Jukes-Cantor Model, Kimura Two-Parameter Model, General Time Reversible (GTR) Model).
+We assume that these species are descendants of a common ancestor, and that their DNA sequences have evolved from their ancestors' DNA by nucleotide substitution. **Nucleotide substitution** refers to the process by which one nucleotide (A, G, C or T) in a DNA sequence is replaced by another over time. These substitutions occur due to various evolutionary forces such as mutations, natural selection, genetic drift, and recombination. To accurately infer evolutionary relationships, scientists use models of nucleotide substitution. These models describe the rates at which one nucleotide is expected to be replaced by another over evolutionary time. Several models exist, ranging from simple to complex (Jukes-Cantor Model, Kimura Two-Parameter Model, General Time Reversible (GTR) Model): we will use the **Jukes-Cantor** model, that assumes that all nucleotide substitutions occur at the same rate.
 
-We will use the **Jukes-Cantor** model, that assumes that all nucleotide substitutions occur at the same rate.
-
-In order to infer a tree, we use **Bayesian phylogenetics**. This approach applies Bayesian statistics to infer the most probable phylogenetic tree given the observed data and prior information. Bayesian methods use _Markov Chain Monte Carlo_ (MCMC) algorithms to sample from the posterior distribution, generating a set of trees and parameters that are consistent with the observed data and the prior information. The process of Bayesian phylogenetic analysis typically involves several key steps:
-
-- Model selection: choosing the appropriate model of nucleotide substitution.
-- Data preparation: aligning sequences and preparing the data matrix.
-- Prior and likelihood specification: defining the prior distributions for the parameters. 
-- MCMC simulation: running the MCMC algorithm to sample from the posterior distribution.
-- Convergence diagnosis: checking that the MCMC simulation has adequately explored the parameter space.
-- Tree summarization: summarizing the sampled trees into a consensus tree, which represents the most probable phylogenetic relationships.
-
-The final consensus tree could be similar to the following:
+An example of a tree relating the above primates could be the following:
 
 <div align="center">
-  <img src=Images/Example_tree_with_photos.jpg/>
+  <img src=Images/Example_tree.jpg/ width=800 height=445>
 </div>
 
-## Jukes-Cantor base substitution model
+A common approach for inferring this sort of tree is **Bayesian phylogenetics**. This approach applies Bayesian statistics to infer the most probable phylogenetic tree given the observed data and prior information. Bayesian methods use _Markov Chain Monte Carlo_ (MCMC) algorithms to sample from the posterior distribution, generating a set of trees and parameters that are consistent with the observed data and the prior information. The process of Bayesian phylogenetic analysis typically involves several key steps:
+
+1. Model selection: choosing the appropriate model of nucleotide substitution.
+2. Data preparation: aligning sequences and preparing the data matrix.
+3. Prior specification: defining the prior distributions for the parameters.
+4. Likelihood calculation: calculating the likelihood based on the model. 
+5. MCMC simulation: running the MCMC algorithm to sample from the posterior distribution.
+6. Convergence diagnosis: checking that the MCMC simulation has adequately explored the parameter space.
+7. Tree summarization: summarizing the sampled trees into a consensus tree, which represents the most probable phylogenetic relationships.
+
+We will now explore these steps.
+
+## 1. Model selection: Jukes-Cantor base substitution model
 
 In order to infer a phylogeny, the first thing to do is to specify a model of base substitution. The Jukes-Cantor model (1969) is the simplest one: it assumes a uniform distribution of bases at the root node, indexed by $\boldsymbol{\rho}$, and defines a per-site mutation rate $\alpha=\frac{\textit{number of base substitutions}}{\textit{site}\cdot\textit{unit time}}$ that is equal for all base mutations. The alphabet that we will be using is $\lbrace A, G, C, T \rbrace$.
 
@@ -78,7 +79,20 @@ $$
 p(t) = p_0 M(t)
 $$
 
-At this point, we assume a **molecular clock**, i.e. a constant mutation rate $\alpha$ over evolutionary times. This allows us to define the _branch length_ $d = \alpha t$, which is the average number of base substitutions per site over elapsed time $t$. This number can be greater than 1 since it admits the possibility of multiple hidden substitutions at a site.
+At this point, we assume a **molecular clock**, i.e. a constant mutation rate $\alpha$ over evolutionary times. This allows us to define the _branch length_ $d = \alpha t$, which is the average number of base substitutions per site over elapsed time $t$. This number can be greater than 1 since it admits the possibility of multiple hidden substitutions at a site. Our model parameters at this stage are $$\boldsymbol{\theta} = (T, \lbrace t_e\rbrace_{e \in E(T)}, \alpha)$$. In our code, we will assume $\alpha = 1$, so that $d = t$, and we reduce parameter space by one dimension. 
+
+## 2. Data preparation: artificial or real data?
+
+## 3. Prior specification
+
+## 4. Likelihood calculation
+
+## 5. MCMC simulation: traversing tree space
+
+## 6. Convergence diagnosis
+
+## 7. Tree summarization
+
 
 ## Bayesian inference TODO
 
