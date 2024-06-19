@@ -39,15 +39,11 @@ A common approach for inferring this sort of tree is **Bayesian phylogenetics**.
 6. **Convergence diagnosis**: checking that the MCMC simulation has adequately explored the parameter space.
 7. **Tree summarization**: summarizing the sampled trees into a consensus tree, which represents the most probable phylogenetic relationships.
 
-We will now explore these steps.
+We will now explore these steps and present our code.
 
 ## 1. Model selection: Jukes-Cantor base substitution model
 
-In order to infer a phylogeny, the first thing to do is to specify a model of base substitution. The Jukes-Cantor model (1969) is the simplest one: it assumes a uniform distribution of bases at the root node, indexed by $\boldsymbol{\rho}$, and defines a per-site mutation rate $\alpha=\frac{\textit{number of base substitutions}}{\textit{site}\cdot\textit{unit time}}$ that is equal for all base mutations. The alphabet that we will be using is $\lbrace A, G, C, T \rbrace$.
-
-$$ p_\boldsymbol{\rho} = \left(p_A=\frac{1}{4}, p_G=\frac{1}{4}, p_C=\frac{1}{4}, p_T=\frac{1}{4}\right) $$
-
-The transition matrix $Q$ is therefore defined so that the rows sum up to 1. The element $Q(1,2) = q_{AG} = \frac{\alpha}{3}$ is, for example, the rate at which the substitution $A\rightarrow G$ occurs. 
+In order to infer a phylogeny, the first thing to do is to specify a model of base substitution. The Jukes-Cantor model (1969) is the simplest one: it assumes a uniform distribution of bases at the root node, indexed by $\boldsymbol{\rho}$, and defines a per-site mutation rate $\alpha=\frac{\textit{number of base substitutions}}{\textit{site}\cdot\textit{unit time}}$ that is equal for all base mutations. The alphabet that we will be using is $\lbrace A, G, C, T \rbrace$. The transition rate matrix $Q$ is therefore defined so that the rows sum up to 1. The element $Q(1,2) = q_{AG} = \frac{\alpha}{3}$ is, for example, the rate at which the substitution $A\rightarrow G$ occurs. 
 
 $$
 Q = \begin{pmatrix}
@@ -58,13 +54,7 @@ Q = \begin{pmatrix}
 \end{pmatrix}
 $$
 
-In continuous time, the differential equation that we want to solve is:
-
-$$
-\frac{d}{dt}p_t = p_t Q
-$$
-
-which yields the solution 
+In continuous time, the differential equation $\frac{d}{dt}p_t = p_t Q$ yields the solution $p(t) = p_0 M(t)$ where $M$ is a **Markov matrix**, in that its rows are normalized to 1, and $a$ is the probability of a base mutation over time $t$.
 
 $$
 M(t) = e^{Qt} = 
@@ -74,16 +64,17 @@ a/3 & 1-a & a/3 & a/3 \\
 a/3 & a/3 & 1-a & a/3 \\
 a/3 & a/3 & a/3 & 1-a \\
 \end{pmatrix}
-\qquad a = a(t) = \frac{3}{4}\left(1-e^{-\frac{4}{3}\alpha t}\right)
+\qquad 
+a = a(t) = \frac{3}{4}\left(1-e^{-\frac{4}{3}\alpha t}\right)
 $$
-
-The parameter $a$ is interpreted as the probability of a base mutation over time $t$. The matrix $M$ is a **Markov matrix**, in that its rows are normalized to 1, so that $p(t) = p_0 M(t)$.
 
 At this point, we assume a **molecular clock**, i.e. a constant mutation rate $\alpha$ over evolutionary times. This allows us to define the _branch length_ $d = \alpha t$, which is the average number of base substitutions per site over elapsed time $t$. This number can be greater than 1 since it admits the possibility of multiple hidden substitutions at a site. Our model parameters at this stage are $\boldsymbol{\theta} = (T, \lbrace t_e\rbrace_{e \in E(T)}, \alpha)$, i.e. the tree topology $T$, the branch lengths $\lbrace t_e\rbrace_{e \in E(T)}$ and the mutation rate $\alpha$. In our code, we will assume $\alpha = 1$, so that $d = t$, and we reduce parameter space by one dimension. 
 
 ## 2. Data preparation: artificial or real data? (TODO)
 
 We will be conducting a double analysis, one with "real" data, provided by RevBayes 
+
+The code for generating random sequences from a parent is given by the function `generate_child_from_parent` in `utils.py`. 
 
 
 ## 3. Prior specification
@@ -127,7 +118,8 @@ In the framework of our MCMC sampling algorithm, the likelihood is the only func
 ## Felsenstein's pruning algorithm TODO
 
 **TODO**
-Add tree files that are used in the code 
+Add tree files that are used in the code
+Calculate overall tree length in MCMC run of python code 
 
 **NOTE**
 Branch lengths sampled by the RevBayes algorithm:
@@ -136,9 +128,14 @@ Branch lengths sampled by the RevBayes algorithm:
 
 ## References
 
-<a id="1">[1]</a> 
-Felsenstein, J. (2004). _Inferring phylogenies_. Sinauer Associates, Inc. 
+<a id="1">[1]</a>
+Joseph Felsenstein. _Inferring Phylogenies_. Sinauer Associates, Sunderland, MA, 2004.
 
-<a id="2">[2]</a> 
-Höhna, Landis, Heath, Boussau, Lartillot, Moore, Huelsenbeck, Ronquist. 2016. "RevBayes: Bayesian phylogenetic inference using graphical models and an interactive model-specification language." Systematic Biology, 65:726-736.
+<a id="2">[2]</a>
+Elizabeth S. Allman and John A. Rhodes. _Mathematical Models in
+Biology: An Introduction_. Cambridge University Press, Cambridge,
+2004.
+
+<a id="3">[3]</a> 
+Sebastian Höhna, Michael J. Landis, Tracy A. Heath, Bastien Boussau, Nicolas Lartillot, Brian R. Moore, John P. Huelsenbeck, Fredrik Ronquist. "RevBayes: Bayesian phylogenetic inference using graphical models and an interactive model-specification language." Systematic Biology, 65:726-736, 2016.
 
