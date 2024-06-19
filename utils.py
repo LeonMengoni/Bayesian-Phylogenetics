@@ -1,4 +1,4 @@
-from settings import bases, n_bases
+from settings import *
 import numpy as np
 from keras.utils import to_categorical
 

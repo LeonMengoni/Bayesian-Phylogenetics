@@ -1,4 +1,4 @@
-from settings import bases, n_bases
+from settings import *
 import numpy as np
 from keras.utils import to_categorical
 import utils as ut
@@ -79,7 +79,7 @@ class Phylogenetic_Tree(Phylo.BaseTree.Tree):
 
     def custom_root_with_outgroup(self, clade_name):
         self.root_with_outgroup(clade_name)
-        self.parents = self.dict_parents()
+        self.parents = self.dict_parents() # Update parents dictionary
 
     # Felsenstein pruning algorithm for calculating likelihood
     def calculate_likelihood(self, p_root=np.ones(n_bases)/n_bases, log=False):
@@ -126,6 +126,6 @@ class Phylogenetic_Tree(Phylo.BaseTree.Tree):
     #     assert len(permutable) == 3 
     #     return permutable
     
-    def draw(self, figsize=(6,6)):
+    def draw(self, figsize=(4,4)):
         _, ax = plt.subplots(figsize=figsize)
         Phylo.draw(self, axes=ax)
