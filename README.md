@@ -68,7 +68,7 @@ a/3 & a/3 & a/3 & 1-a \\
 a = a(t) = \frac{3}{4}\left(1-e^{-\frac{4}{3}\alpha t}\right)
 $$
 
-At this point, we assume a **molecular clock**, i.e. a constant mutation rate $\alpha$ over evolutionary times. This allows us to define the _branch length_ $d = \alpha t$, which is the average number of base substitutions per site over elapsed time $t$. This number can be greater than 1 since it admits the possibility of multiple hidden substitutions at a site. Our model parameters at this stage are $\boldsymbol{\theta} = (T, \lbrace t_e\rbrace_{e \in E(T)}, \alpha)$, i.e. the tree topology $T$, the branch lengths $\lbrace t_e\rbrace_{e \in E(T)}$ and the mutation rate $\alpha$. In our code, we will assume $\alpha = 1$, so that $d = t$, and we reduce parameter space by one dimension. 
+At this point, we assume a **molecular clock**, i.e. a constant mutation rate $\alpha$ over evolutionary times. This allows us to define the _branch length_ $d = \alpha t$, which is the average number of base substitutions per site over elapsed time $t$. This number can be greater than 1 since it admits the possibility of multiple hidden substitutions at a site. Our model parameters at this stage are the tree topology $T$, the branch lengths $\lbrace t_e\rbrace_{e \in E(T)}$ and the mutation rate $\alpha$. In our code, we will assume $\alpha = 1$, so that $d = t$, and we reduce parameter space by one dimension: $\boldsymbol{\theta} = (T, \lbrace t\rbrace)$.
 
 ## 2. Data preparation: artificial or real data?
 
@@ -80,7 +80,19 @@ Then, we will also use DNA sequences provided by RevBayes, to test the RevBayes 
 
 ## 3. Prior specification
 
-This is one of the key steps in setting up a Bayesian inference. The prior distribution specifies our previous knowledge on the model parameters, and different distributions can lead to quite different posteriors. In literature (**Felsenstein**) the most often proposed distributions are an exponential or uniform distribution with varying parameters. We can try both of them, by varying the exponential mean and the uniform distribution support. However, we can also use the total tree length, defined as the sum of all the branches, as another control parameter. If the individual branch lengths are distributed exponentially, the distribution of their sum will be a gamma distribution. (**TODO**) 
+This is one of the key steps in setting up a Bayesian inference. The prior distribution specifies our previous knowledge on the model parameters, and different distributions can lead to quite different posteriors. In literature (**Felsenstein**) the most often proposed distributions are an exponential or uniform distribution with varying parameters. We can try both of them, by varying the exponential mean and the support of the uniform distribution. However, we can also use the total tree length, defined as the sum of all the branches, as another control parameter. If the individual branch lengths are distributed exponentially, the distribution of their sum will be a gamma distribution. (**TODO**) 
+
+The tree topology and the branch lengths are independent, so we can write the prior as:
+
+$$
+P(\boldsymbol{\theta}) = P(T, \lbrace t\rbrace) = P(T)\cdot P(\lbrace t\rbrace)
+$$
+
+If we set the prior of the branch length to an exponential distribution, we obtain:
+
+$$
+P(\lbrace t\rbrace) = \prod_{i=1}^E P(t_i) = \prod_{i=1}^E \lambda e^{-\lambda t_i} \propto \exp\left({-\lambda\sum_{i=1}^E t_i}\right) = \exp\left({-\lambda TL}\right)
+$$
 
 ## 4. Likelihood calculation: Felsenstein's pruning algorithm
 
@@ -88,28 +100,27 @@ Without entering into the technical details of the calculation of the Likelihood
 
 ## 5. MCMC simulation: traversing tree space
 
-As we said previously, having set $\alpha = 1$, the parameters of our model are the tree topology and the branch lengths: $\boldsymbol{\theta} = (T, \lbrace t_e\rbrace_{e \in E(T)})$.
+As we said previously, having set $\alpha = 1$, the parameters of our model are the tree topology and the branch lengths: $\boldsymbol{\theta} = (T, \lbrace t_e\rbrace)$.
 
 Our data is simply a list of genetic sequences: $D = (AGCTGA, GGCTGA, \dots , AGCTCC)$
 
 The posterior is:
 
 $$ 
-P(\boldsymbol{\theta}|D) = \frac{P(D|\boldsymbol{\theta})\cdot P(\theta)}{P(D)} = \frac{\mathcal{L}(\boldsymbol{\theta})\cdot P(\boldsymbol{\theta})}{Z}
+P(\boldsymbol{\theta}|D) = \frac{P(D|\boldsymbol{\theta})\cdot P(\boldsymbol{\theta})}{P(D)} \propto \mathcal{L}(\boldsymbol{\theta})\cdot P(\boldsymbol{\theta})
 $$
 
-where $\mathcal{L}(\boldsymbol{\theta})$ is the Felsenstein likelihood and $P(\boldsymbol{\theta})$ is the prior.  
+where $\mathcal{L}(\boldsymbol{\theta})$ is the Felsenstein likelihood and $P(\boldsymbol{\theta})$ is the prior.
 
-To sample the posterior, we use the **Metropolis algorithm**; therefore, given $\pi(\boldsymbol{\theta}) = P(\boldsymbol{\theta}|D)$ as the stationary distribution of the Markov Chain, the Metropolis acceptance ratio is:
+To sample the posterior we use the **Metropolis algorithm**; therefore, given $\pi(\boldsymbol{\theta}) = P(\boldsymbol{\theta}|D)$ as the stationary distribution of the Markov Chain, the Metropolis acceptance ratio is:
 
 $$
-r = min
+r = \min\left\lbrace 1, \frac{\pi(\boldsymbol{\theta'})}{\pi(\boldsymbol{\theta})}\right\rbrace 
+= \min\left\lbrace 1, \frac{\mathcal{L}(\boldsymbol{\theta'})P(\boldsymbol{\theta'})}{\mathcal{L}(\boldsymbol{\theta})P(\boldsymbol{\theta})}\right\rbrace 
+= \min\left\lbrace 1, \frac{\mathcal{L}(\boldsymbol{\theta'})P(\lbrace t_e'\rbrace)}{\mathcal{L}(\boldsymbol{\theta})P(\lbrace t_e\rbrace)}\right\rbrace
 $$
-
-$$P(\boldsymbol{\theta}|D) =\frac{\mathcal{L} \cdot P(T)}{P(D)} \cdot P(\lbrace t_e\rbrace) \cdot P(\alpha) \propto \mathcal{L}$$
 
 In the framework of our MCMC sampling algorithm, the likelihood is the only function that is of interest for computing the Metropolis acceptance ratio.
-
 
 ## 6. Convergence diagnosis
 
