@@ -4,6 +4,10 @@
 
 # Bayesian inference of phylogenetic trees
 
+<div align="center">
+  <img src=Images/Dinosaur_meme.jpg/ width=400 height=372>
+</div>
+
 **Phylogenetics** is the study of evolutionary relationships among biological entities – often species, individuals, or genes. These relationships are represented by a **phylogenetic tree** (or _phylogeny_), a diagram that represents the evolutionary history and common ancestry of the entities being studied. The branching pattern of the tree indicates how these different entities are related, with each branch point, or node, representing a common ancestor. The species whose phylogeny we want to reconstruct are placed at the **leaves**, the terminal nodes of the tree.
 
 The species that we want to relate can be characterized by a series of observable heritable traits. We will be using **aligned DNA sequences**, but also morphological traits or protein amino acid sequences are commonly used. Each DNA sequence in our dataset corresponds to one species. For example, our data can look like these primate DNA sequences: 
@@ -27,13 +31,13 @@ An example of a tree relating the above primates could be the following:
 
 A common approach for inferring this sort of tree is **Bayesian phylogenetics**. This approach applies Bayesian statistics to infer the most probable phylogenetic tree given the observed data and prior information. Bayesian methods use _Markov Chain Monte Carlo_ (MCMC) algorithms to sample from the posterior distribution, generating a set of trees and parameters that are consistent with the observed data and the prior information. The process of Bayesian phylogenetic analysis typically involves several key steps:
 
-1. Model selection: choosing the appropriate model of nucleotide substitution.
-2. Data preparation: aligning sequences and preparing the data matrix.
-3. Prior specification: defining the prior distributions for the parameters.
-4. Likelihood calculation: calculating the likelihood based on the model. 
-5. MCMC simulation: running the MCMC algorithm to sample from the posterior distribution.
-6. Convergence diagnosis: checking that the MCMC simulation has adequately explored the parameter space.
-7. Tree summarization: summarizing the sampled trees into a consensus tree, which represents the most probable phylogenetic relationships.
+1. **Model selection**: choosing the appropriate model of nucleotide substitution.
+2. **Data preparation**: aligning sequences and preparing the data matrix.
+3. **Prior specification**: defining the prior distributions for the parameters.
+4. **Likelihood calculation**: calculating the likelihood based on the model. 
+5. **MCMC simulation**: running the MCMC algorithm to sample from the posterior distribution.
+6. **Convergence diagnosis**: checking that the MCMC simulation has adequately explored the parameter space.
+7. **Tree summarization**: summarizing the sampled trees into a consensus tree, which represents the most probable phylogenetic relationships.
 
 We will now explore these steps.
 
@@ -73,15 +77,14 @@ a/3 & a/3 & a/3 & 1-a \\
 \qquad a = a(t) = \frac{3}{4}\left(1-e^{-\frac{4}{3}\alpha t}\right)
 $$
 
-The parameter $a$ is interpreted as the probability of a base mutation over time $t$. The matrix $M$ is a **Markov matrix**, in that its rows are normalized to 1, and it holds that
+The parameter $a$ is interpreted as the probability of a base mutation over time $t$. The matrix $M$ is a **Markov matrix**, in that its rows are normalized to 1, so that $p(t) = p_0 M(t)$.
 
-$$
-p(t) = p_0 M(t)
-$$
+At this point, we assume a **molecular clock**, i.e. a constant mutation rate $\alpha$ over evolutionary times. This allows us to define the _branch length_ $d = \alpha t$, which is the average number of base substitutions per site over elapsed time $t$. This number can be greater than 1 since it admits the possibility of multiple hidden substitutions at a site. Our model parameters at this stage are $\boldsymbol{\theta} = (T, \lbrace t_e\rbrace_{e \in E(T)}, \alpha)$, i.e. the tree topology $T$, the branch lengths $\lbrace t_e\rbrace_{e \in E(T)}$ and the mutation rate $\alpha$. In our code, we will assume $\alpha = 1$, so that $d = t$, and we reduce parameter space by one dimension. 
 
-At this point, we assume a **molecular clock**, i.e. a constant mutation rate $\alpha$ over evolutionary times. This allows us to define the _branch length_ $d = \alpha t$, which is the average number of base substitutions per site over elapsed time $t$. This number can be greater than 1 since it admits the possibility of multiple hidden substitutions at a site. Our model parameters at this stage are $$\boldsymbol{\theta} = (T, \lbrace t_e\rbrace_{e \in E(T)}, \alpha)$$. In our code, we will assume $\alpha = 1$, so that $d = t$, and we reduce parameter space by one dimension. 
+## 2. Data preparation: artificial or real data? (TODO)
 
-## 2. Data preparation: artificial or real data?
+We will be conducting a double analysis, one with "real" data, provided by RevBayes 
+
 
 ## 3. Prior specification
 
@@ -123,8 +126,19 @@ In the framework of our MCMC sampling algorithm, the likelihood is the only func
 
 ## Felsenstein's pruning algorithm TODO
 
+**TODO**
+Add tree files that are used in the code 
 
 **NOTE**
 Branch lengths sampled by the RevBayes algorithm:
 - terminal branches are typically longer
 - internal branches are shorter
+
+## References
+
+<a id="1">[1]</a> 
+Felsenstein, J. (2004). _Inferring phylogenies_. Sinauer Associates, Inc. 
+
+<a id="2">[2]</a> 
+Höhna, Landis, Heath, Boussau, Lartillot, Moore, Huelsenbeck, Ronquist. 2016. "RevBayes: Bayesian phylogenetic inference using graphical models and an interactive model-specification language." Systematic Biology, 65:726-736.
+
