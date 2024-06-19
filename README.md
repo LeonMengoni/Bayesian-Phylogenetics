@@ -70,50 +70,51 @@ $$
 
 At this point, we assume a **molecular clock**, i.e. a constant mutation rate $\alpha$ over evolutionary times. This allows us to define the _branch length_ $d = \alpha t$, which is the average number of base substitutions per site over elapsed time $t$. This number can be greater than 1 since it admits the possibility of multiple hidden substitutions at a site. Our model parameters at this stage are $\boldsymbol{\theta} = (T, \lbrace t_e\rbrace_{e \in E(T)}, \alpha)$, i.e. the tree topology $T$, the branch lengths $\lbrace t_e\rbrace_{e \in E(T)}$ and the mutation rate $\alpha$. In our code, we will assume $\alpha = 1$, so that $d = t$, and we reduce parameter space by one dimension. 
 
-## 2. Data preparation: artificial or real data? (TODO)
+## 2. Data preparation: artificial or real data?
 
-We will be conducting a double analysis, one with "real" data, provided by RevBayes 
+Generally, DNA sequences have to be aligned so that differing regions can be compared using the previously chosen model of nucleotide substitution. For simplicity, we will skip this step, working directly with aligned data. 
 
-The code for generating random sequences from a parent is given by the function `generate_child_from_parent` in `utils.py`. 
+In order to evaluate the validity of our model and justify the choices made in setting up the MCMC algorithm, we will generate artificial data, starting from a tree with known topology and branch lengths. The code for generating an artificial tree is given by the function `simulate_artificial_data` in `data_generator.py`. 
 
+Then, we will also use DNA sequences provided by RevBayes, to test the RevBayes scripts. 
 
 ## 3. Prior specification
 
-## 4. Likelihood calculation
+This is one of the key steps in setting up a Bayesian inference. The prior distribution specifies our previous knowledge on the model parameters, and different distributions can lead to quite different posteriors. In literature (**Felsenstein**) the most often proposed distributions are an exponential or uniform distribution with varying parameters. We can try both of them, by varying the exponential mean and the uniform distribution support. However, we can also use the total tree length, defined as the sum of all the branches, as another control parameter. If the individual branch lengths are distributed exponentially, the distribution of their sum will be a gamma distribution. (**TODO**) 
+
+## 4. Likelihood calculation: Felsenstein's pruning algorithm
+
+Without entering into the technical details of the calculation of the Likelihood function. **TODO** 
 
 ## 5. MCMC simulation: traversing tree space
+
+As we said previously, having set $\alpha = 1$, the parameters of our model are the tree topology and the branch lengths: $\boldsymbol{\theta} = (T, \lbrace t_e\rbrace_{e \in E(T)})$.
+
+Our data is simply a list of genetic sequences: $D = (AGCTGA, GGCTGA, \dots , AGCTCC)$
+
+The posterior is:
+
+$$ 
+P(\boldsymbol{\theta}|D) = \frac{P(D|\boldsymbol{\theta})\cdot P(\theta)}{P(D)} = \frac{\mathcal{L}(\boldsymbol{\theta})\cdot P(\boldsymbol{\theta})}{Z}
+$$
+
+where $\mathcal{L}(\boldsymbol{\theta})$ is the Felsenstein likelihood and $P(\boldsymbol{\theta})$ is the prior.  
+
+To sample the posterior, we use the **Metropolis algorithm**; therefore, given $\pi(\boldsymbol{\theta}) = P(\boldsymbol{\theta}|D)$ as the stationary distribution of the Markov Chain, the Metropolis acceptance ratio is:
+
+$$
+r = min
+$$
+
+$$P(\boldsymbol{\theta}|D) =\frac{\mathcal{L} \cdot P(T)}{P(D)} \cdot P(\lbrace t_e\rbrace) \cdot P(\alpha) \propto \mathcal{L}$$
+
+In the framework of our MCMC sampling algorithm, the likelihood is the only function that is of interest for computing the Metropolis acceptance ratio.
+
 
 ## 6. Convergence diagnosis
 
 ## 7. Tree summarization
 
-
-## Bayesian inference TODO
-
-The parameters of our Jukes-Cantor model are: 
-$$\boldsymbol{\theta} = (T, \lbrace t_e\rbrace_{e \in E(T)}, \alpha)$$
-
-Our data is composed of a list of genetic sequences:
-$$D = (AGCTGA, GGCTGA, \dots , AGCTCC)$$
-
-The posterior can be written as:
-$$P(\boldsymbol{\theta}|D) = P(T, \lbrace t_e\rbrace, \alpha|D) = P(T|\lbrace t_e\rbrace, \alpha, D) \cdot P(\lbrace t_e\rbrace|D) \cdot P(\alpha|D)$$
-
-The first term can be expanded as:
-$$P(T|\lbrace t_e\rbrace, \alpha, D) = \frac{P(D|T, \lbrace t_e\rbrace, \alpha) \cdot P(T|\lbrace t_e\rbrace, \alpha)}{P(D|\lbrace t_e\rbrace, \alpha)} = \frac{P(D|T) \cdot P(T)}{P(D)} \propto \mathcal{L}(T)$$
-
-where $P(D|\lbrace t_e\rbrace, \alpha) = P(D)$ and $P(T|\lbrace t_e\rbrace, \alpha) = P(T)$ hold for the marginal likelihood and the prior probability distribution for the tree, respectively, and where $P(D|T)=\mathcal{L}(T)$ is the likelihood function for the selected tree $T$.
-
-The second and third terms can be simplified as:
-$$P(\lbrace t_e\rbrace|D) = \frac{P(D|\lbrace t_e\rbrace) \cdot P(\lbrace t_e\rbrace)}{P(D)} = P(\lbrace t_e\rbrace)$$
-$$P(\alpha|D) = \frac{P(D|\alpha) \cdot P(\alpha)}{P(D)} = P(\alpha)$$
-since the data doesn't solely depend on the values of the edge lengths and of $\alpha$, but only when these are combined with a tree topology. In other words, the data doesn't update our beliefs on what should be the probability distribution for these parameters. Certainly, if the data is very variable, we could say that it is a consequence of the fact that the substitution rate $\alpha$ is big, or that the edges are especially long. Therefore, they are simply represented by their prior probability distributions, which we may consider uniform on some range of values. 
-
-In summary,
-
-$$P(\boldsymbol{\theta}|D) =\frac{\mathcal{L} \cdot P(T)}{P(D)} \cdot P(\lbrace t_e\rbrace) \cdot P(\alpha) \propto \mathcal{L}$$
-
-In the framework of our MCMC sampling algorithm, the likelihood is the only function that is of interest for computing the Metropolis acceptance ratio.
 
 ## Felsenstein's pruning algorithm TODO
 
