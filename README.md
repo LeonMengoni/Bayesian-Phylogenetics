@@ -1,8 +1,12 @@
+<h1 align="center">Information theory and Inference<br> University of Padua <br>2023/2024</h1>
+
+<h3 align="center"><b>Group members:</b> Leon Mengoni, Alessio Saccomani</h3>
+
 # Bayesian inference of phylogenetic trees
 
-**Phylogenetic trees**, or phylogenies, are structures that describe the ancestral and evolutionary relationships between species, starting from a series of observable heritable traits. The type of observable traits that we will be using are **aligned data sequences**, but also morphological traits or protein amino acid sequences are commonly used.
+**Phylogenetics** is the study of evolutionary relationships among biological entities – often species, individuals, or genes. These relationships are represented by a **phylogenetic tree** (or _phylogeny_), a diagram that represents the evolutionary history and common ancestry of the entities being studied. The branching pattern of the tree indicates how these different entities are related, with each branch point, or node, representing a common ancestor. The species whose phylogeny we want to reconstruct are placed at the **leaves**, the terminal nodes of the tree.
 
-Each DNA sequence in our dataset corresponds to one species. For example, our data can look like these primate DNA sequences: 
+The species that we want to relate can be characterized by a series of observable heritable traits. We will be using **aligned DNA sequences**, but also morphological traits or protein amino acid sequences are commonly used. Each DNA sequence in our dataset corresponds to one species. For example, our data can look like these primate DNA sequences: 
 
 ```
 Saimiri_sciureus               ATGACCTCAC...
@@ -13,7 +17,20 @@ Hylobates_lar                  ATGACCCCCC...
 Pan_paniscus                   ATGACCCCAA...
 ```
 
-From this data, we want to infer a tree that is able to explain the observed base mutations. To do this, we will be adopting Bayesian methods of phylogenetic inference, based on _Markov Chain Monte Carlo_ (MCMC). 
+We assume that these species are descendants of a common ancestor, and that their DNA sequences have evolved from their ancestors' DNA by nucleotide substitution. **Nucleotide substitution** refers to the process by which one nucleotide (A, T, C, or G) in a DNA sequence is replaced by another over time. These substitutions occur due to various evolutionary forces such as mutations, natural selection, genetic drift, and recombination. To accurately infer evolutionary relationships, scientists use models of nucleotide substitution. These models describe the rates at which one nucleotide is expected to be replaced by another over evolutionary time. Several models exist, ranging from simple to complex (Jukes-Cantor Model, Kimura Two-Parameter Model, General Time Reversible (GTR) Model).
+
+We will use the **Jukes-Cantor** model, that assumes that all nucleotide substitutions occur at the same rate.
+
+In order to infer a tree, we use **Bayesian phylogenetics**. This approach applies Bayesian statistics to infer the most probable phylogenetic tree given the observed data and prior information. Bayesian methods use _Markov Chain Monte Carlo_ (MCMC) algorithms to sample from the posterior distribution, generating a set of trees and parameters that are consistent with the observed data and the prior information. The process of Bayesian phylogenetic analysis typically involves several key steps:
+
+- Model selection: choosing the appropriate model of nucleotide substitution.
+- Data preparation: aligning sequences and preparing the data matrix.
+- Prior and likelihood specification: defining the prior distributions for the parameters. 
+- MCMC simulation: running the MCMC algorithm to sample from the posterior distribution.
+- Convergence diagnosis: checking that the MCMC simulation has adequately explored the parameter space.
+- Tree summarization: summarizing the sampled trees into a consensus tree, which represents the most probable phylogenetic relationships.
+
+The final consensus tree could be similar to the following:
 
 <div align="center">
   <img src=Images/Example_tree_with_photos.jpg/>
