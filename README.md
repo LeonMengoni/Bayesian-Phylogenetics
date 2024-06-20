@@ -37,7 +37,6 @@ A common approach for inferring this sort of tree is **Bayesian phylogenetics**.
 4. **Likelihood calculation**: calculating the likelihood based on the model. 
 5. **MCMC simulation**: running the MCMC algorithm to sample from the posterior distribution.
 6. **Convergence diagnosis**: checking that the MCMC simulation has adequately explored the parameter space.
-7. **Tree summarization**: summarizing the sampled trees into a consensus tree, which represents the most probable phylogenetic relationships.
 
 We will now explore these steps and present our code.
 
@@ -152,12 +151,7 @@ Every step in the Markov chain is determined by a double proposal: first, a new 
 
 ## 6. Convergence diagnosis
 
-Once the Markov Chain is set up and running, we have to run it long enough until convergence, to obtain samples from the posterior distribution. This is one of the main issues with MCMC, in general. In our case, the sheer size of the parameter space makes it practically impossible to be confident of having reached convergence. 
-
-## 7. Tree summarization
-
-
-
+Once the Markov Chain is set up and running, we have to run it long enough until convergence, to obtain samples from the posterior distribution. This is one of the main issues with MCMC, in general. In our case, the sheer size of the parameter space makes it practically impossible to be confident of having reached convergence. One strategy is to run multiple chains from different starting points and compare the results, since these should converge to the same distribution [[4]](#4)).
 
 ## References
 
