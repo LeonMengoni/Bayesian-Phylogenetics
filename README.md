@@ -144,7 +144,11 @@ $$
 r = \min\left\lbrace 1, \frac{\mathcal{L}(\boldsymbol{\theta'})}{\mathcal{L}(\boldsymbol{\theta})}e^{-\lambda (L'-L)}\frac{Q(\boldsymbol{\theta}|\boldsymbol{\theta'})}{Q(\boldsymbol{\theta'}|\boldsymbol{\theta})}\right\rbrace
 $$
 
-Every step in the Markov chain is determined by a double proposal: first, a new tree topology is proposed according to a Nearest Neighbor Interchange (NNI) or a Subtree Prune and Regraft (described in [[1]](#1) and [[2]](#2)); second, a new set of branches is proposed according to $Q(\lbrace t'\rbrace|\lbrace t\rbrace)$, which is described by a so-called _Scaling move_. In practice, a scaling factor is generated uniformly from $\mathcal{U}\left[\frac{1}{\lambda},\lambda\right]$, which multiplies the current branch length to obtain the new branch length, as shown in figure
+Every step in the Markov chain is determined by a double proposal: first, a new tree topology is proposed according to a Nearest Neighbor Interchange (NNI) or a Subtree Prune and Regraft (described in [[1]](#1) and [[2]](#2)); second, a new set of branches is proposed according to $Q(\lbrace t'\rbrace|\lbrace t\rbrace)$, which is described by a so-called _Scaling move_. In practice, a scaling factor is generated uniformly from $\mathcal{U}\left[\frac{1}{\lambda},\lambda\right]$, which multiplies the current branch length to obtain the new branch length, as shown in the figure below [[4]](#4)).
+
+<div align="center">
+  <img src=Images/Scaling_move.jpg/ width=250 height=160>
+</div>
 
 ## 6. Convergence diagnosis
 
@@ -153,23 +157,6 @@ Once the Markov Chain is set up and running, we have to run it long enough until
 ## 7. Tree summarization
 
 
-## Felsenstein's pruning algorithm TODO
-
-**TODO**
-Add tree files that are used in the code
-Calculate overall tree length in MCMC run of python code 
-Generate artificial data with uniform or exponential or other and compare inference with uniform or exponential assumption.
-
-**NOTE**
-Branch lengths sampled by the RevBayes algorithm:
-- terminal branches are typically longer
-- internal branches are shorter
- 
-Initial tree (and every NNI tree) has to be rooted with specified outgroup: if outgroup is fixed, there is no possibility that the NNI eligible node is a child of the root, therefore basically we simplify the whole process. 
-
-When calculating the likelihood, does the ougroup become important? We include the outgroup in the likelihood calculation. 
-
-In general, the outgroup branch length is always included. SInce it is included in the likelihood, we keep it all the time.
 
 
 ## References
@@ -184,4 +171,7 @@ Biology: An Introduction_. Cambridge University Press, Cambridge,
 
 <a id="3">[3]</a> 
 Sebastian Höhna, Michael J. Landis, Tracy A. Heath, Bastien Boussau, Nicolas Lartillot, Brian R. Moore, John P. Huelsenbeck, Fredrik Ronquist. "RevBayes: Bayesian phylogenetic inference using graphical models and an interactive model-specification language." Systematic Biology, 65:726-736, 2016.
+
+<a id="4">[4]</a>
+Barido-Sottani J, Schwery O, Warnock RCM et al. Practical guidelines for Bayesian phylogenetic inference using Markov Chain Monte Carlo (MCMC) [version 1; peer review: 3 approved, 1 approved with reservations]. Open Res Europe 2023, 3:204 (https://doi.org/10.12688/openreseurope.16679.1)
 
