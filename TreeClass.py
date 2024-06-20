@@ -6,6 +6,7 @@ import warnings
 from Bio import Phylo
 from Bio.Phylo.BaseTree import Tree
 from matplotlib import pyplot as plt
+import copy
 
 # Root: MRCA (Most Recent Common Ancestor) of all known given present known taxa ("terminal" taxa of "leaves")
 # Parent: "parent" node, given an edge
@@ -47,14 +48,27 @@ class Phylogenetic_Tree(Phylo.BaseTree.Tree):
     def get_sibling(self, node):
         sibling = [clade for clade in self.parents[node].clades if clade != node][0]
         return sibling
+
+    def sample_branch_length(self, params):
+        if params["distribution"] == "exponential":
+            return np.random.exponential(scale=params["scale"])
+        elif params["distribution"] == "uniform":
+            return np.random.uniform(low=params["low"], high=params["high"])
+        else:
+            raise ValueError("Unsupported distribution type")
+        
+    def calculate_total_tree_length(self):
+        L = np.sum([clade.branch_length for clade in self.find_clades() if clade != self.root])
+        return L
     
-    def generate_random_branch_lengths(self, distribution="exponential", type=None):
+    def generate_random_branch_lengths(self, distribution_params, type=None):
         for clade in self.find_clades():
             if clade != self.root:
-                if distribution == "exponential": # Exponential distribution (scale is mean)
-                    clade.branch_length = np.random.exponential(scale=0.1)
-                elif distribution == "uniform": # Uniform distribution
-                    clade.branch_length = np.random.random()
+                clade.branch_length = self.sample_branch_length(distribution_params)
+                # if distribution == "exponential": # Exponential distribution (scale is mean)
+                #     clade.branch_length = np.random.exponential(scale=0.1)
+                # elif distribution == "uniform": # Uniform distribution
+                #     clade.branch_length = np.random.random()
         
         if type == "ultrametric": # Ultrametric tree: distance to root is the same for all leaves 
             self.make_tree_ultrametric()
@@ -113,19 +127,34 @@ class Phylogenetic_Tree(Phylo.BaseTree.Tree):
 
         assert self.n_taxa-3 == len(NNI_nodes) 
         return NNI_nodes
-
-    # def NNI_permutable_nodes(self, chosen_node): # 3 nodes that can be permuted in a rooted tree NNI step
-    #     permutable = [] # keep this otherwise error
-    #     permutable += chosen_node.clades # 2 children
-    #     sibling = self.get_sibling(chosen_node)
-    #     if self.parents[chosen_node] == self.root: # if parent is root, get one nibling
-    #         niblings = sibling.clades
-    #         permutable.append(niblings[0])
-    #     else: # if parent is not root, get sibling
-    #         permutable.append(sibling)
-    #     assert len(permutable) == 3 
-    #     return permutable
     
+    def NNI_permutable_nodes(tree, chosen_node): # 3 nodes that can be permuted in a rooted tree NNI step
+        permutable = []
+        permutable += chosen_node.clades # 2 children
+        sibling = tree.get_sibling(chosen_node)
+        if tree.parents[chosen_node] == tree.root: # if parent is root, get one nibling
+            niblings = sibling.clades
+            permutable.append(niblings[0])
+        else: # if parent is not root, get sibling
+            permutable.append(sibling)
+        assert len(permutable) == 3 
+        return permutable
+
+    def NNI_generate_topology(tree, chosen_node, permutable):
+        NNI_tree = copy.deepcopy(tree)
+        for NNI_clade in NNI_tree.get_nonterminals():
+            if NNI_clade.name == chosen_node.name:
+                NNI_clade.clades = permutable[:2]
+                NNI_parent = NNI_tree.parents[NNI_clade]
+                if NNI_parent == NNI_tree.root: # if parent is root, get the other nibling (the one that wasn't placed in permutable)
+                    NNI_sibling = NNI_tree.get_sibling(NNI_clade)
+                    NNI_niblings = NNI_sibling.clades
+                    NNI_sibling.clades = [permutable[2], NNI_niblings[1]]
+                else: # if parent is not root
+                    NNI_parent.clades = [NNI_clade, permutable[2]]
+        NNI_tree.parents = NNI_tree.dict_parents() # Update parents dictionary (only structure whose elements have undergone transformation when copying tree)
+        return NNI_tree
+
     def draw(self, figsize=(4,4)):
         _, ax = plt.subplots(figsize=figsize)
         Phylo.draw(self, axes=ax)
