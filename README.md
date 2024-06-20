@@ -80,19 +80,19 @@ Then, we will also use DNA sequences provided by RevBayes, to test the RevBayes 
 
 ## 3. Prior specification
 
-This is one of the key steps in setting up a Bayesian inference. The prior distribution specifies our previous knowledge on the model parameters, and different distributions can lead to quite different posteriors. In literature (**Felsenstein**) the most often proposed distributions are an exponential or uniform distribution with varying parameters. We can try both of them, by varying the exponential mean and the support of the uniform distribution. However, we can also use the total tree length, defined as the sum of all the branches, as another control parameter. If the individual branch lengths are distributed exponentially, the distribution of their sum will be a gamma distribution. (**TODO**) 
-
-The tree topology and the branch lengths are independent, so we can write the prior as:
+This is one of the key steps in setting up a Bayesian inference. The prior distribution specifies our previous knowledge on the model parameters, and different distributions can lead to quite different posteriors. The tree topology and the branch lengths are independent, so we can write the prior as:
 
 $$
 P(\boldsymbol{\theta}) = P(T, \lbrace t\rbrace) = P(T)\cdot P(\lbrace t\rbrace)
 $$
 
-If we set the prior of the branch length to an exponential distribution, we obtain:
+In literature [[1]](#1), the topology prior distribution is taken to be uniform, while for branch lengths, an exponential or uniform distribution seems to do the job. We will try both of them. If we choose an exponential distribution, we get:
 
 $$
-P(\lbrace t\rbrace) = \prod_{i=1}^E P(t_i) = \prod_{i=1}^E \lambda e^{-\lambda t_i} \propto \exp\left({-\lambda\sum_{i=1}^E t_i}\right) = \exp\left({-\lambda TL}\right)
+P(\lbrace t\rbrace) = \prod_{i=1}^E P(t_i) = \prod_{i=1}^E \lambda e^{-\lambda t_i} \propto \exp\left({-\lambda\sum_{i=1}^E t_i}\right) \propto e^{-\lambda L}
 $$
+
+where $L$ is the total length of the tree, defined as the sum of all the branch lengths. If the individual branch lengths are distributed exponentially, the distribution of their sum will be a gamma distribution. Therefore, a different approach could be to sample the total tree length $L$ from a gamma distribution and then obtain the individual branch lengths proportionally with respect to a Dirichlet distribution. (**TODO**)
 
 ## 4. Likelihood calculation: Felsenstein's pruning algorithm
 
@@ -120,7 +120,21 @@ r = \min\left\lbrace 1, \frac{\pi(\boldsymbol{\theta'})}{\pi(\boldsymbol{\theta}
 = \min\left\lbrace 1, \frac{\mathcal{L}(\boldsymbol{\theta'})P(\lbrace t_e'\rbrace)}{\mathcal{L}(\boldsymbol{\theta})P(\lbrace t_e\rbrace)}\right\rbrace
 $$
 
-In the framework of our MCMC sampling algorithm, the likelihood is the only function that is of interest for computing the Metropolis acceptance ratio.
+where we have simplified $P(T)$ out of the equation since it is uniform. 
+
+- If the prior distribution on the branch lengths is **uniform**, the acceptance ratio simplifies to a likelihood ratio:
+
+$$
+r = \min\left\lbrace 1, \frac{\mathcal{L}(\boldsymbol{\theta'})}{\mathcal{L}(\boldsymbol{\theta})}\right\rbrace
+= \min\left\lbrace 1, e^{\ln{\mathcal{L}(\boldsymbol{\theta'})}-\ln{\mathcal{L}(\boldsymbol{\theta})}}\right\rbrace
+$$
+
+- If we assume the branch lengths to follow an **exponential** distribution, we can introduce the total tree length $L$ again, and calculate the acceptance ratio as:
+
+$$
+r = \min\left\lbrace 1, \frac{\mathcal{L}(\boldsymbol{\theta'})}{\mathcal{L}(\boldsymbol{\theta})}e^{-\lambda (L'-L)}\right\rbrace
+= \min\left\lbrace 1, e^{\ln{\mathcal{L}(\boldsymbol{\theta'})}-\ln{\mathcal{L}(\boldsymbol{\theta})}-\lambda (L'-L)}\right\rbrace
+$$
 
 ## 6. Convergence diagnosis
 
