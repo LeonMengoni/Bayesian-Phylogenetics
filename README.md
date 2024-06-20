@@ -1,4 +1,4 @@
-<h1 align="center">Information theory and Inference<br> University of Padua <br>2023/2024</h1>
+<h1 align="center">Information Theory and Inference<br> University of Padua <br>2023/2024</h1>
 
 <h3 align="center"><b>Group members:</b> Leon Mengoni, Alessio Saccomani</h3>
 
@@ -155,7 +155,9 @@ Branch lengths sampled by the RevBayes algorithm:
  
 Initial tree (and every NNI tree) has to be rooted with specified outgroup: if outgroup is fixed, there is no possibility that the NNI eligible node is a child of the root, therefore basically we simplify the whole process. 
 
-When calculating the likelihood, does the ougroup become important? We include the outgroup in the likelihood calculation.
+When calculating the likelihood, does the ougroup become important? We include the outgroup in the likelihood calculation. 
+
+In general, the outgroup branch length is always included. SInce it is included in the likelihood, we keep it all the time.
 
 
 ## References
