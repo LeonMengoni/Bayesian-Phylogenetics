@@ -7,6 +7,7 @@ from Bio import Phylo
 from Bio.Phylo.BaseTree import Tree
 from matplotlib import pyplot as plt
 import copy
+import random
 
 # Root: MRCA (Most Recent Common Ancestor) of all known given present known taxa ("terminal" taxa of "leaves")
 # Parent: "parent" node, given an edge
@@ -154,7 +155,37 @@ class Phylogenetic_Tree(Phylo.BaseTree.Tree):
                     NNI_parent.clades = [NNI_clade, permutable[2]]
         NNI_tree.parents = NNI_tree.dict_parents() # Update parents dictionary (only structure whose elements have undergone transformation when copying tree)
         return NNI_tree
+    
+    def NNI_step(self, distribution_params):
+        NNI_nodes = self.NNI_eligible_nodes()
+        chosen_node = random.choice(NNI_nodes)
+        permutable = self.NNI_permutable_nodes(chosen_node)
+        _, self.loglikelihood = self.calculate_likelihood(log=True)
 
+        for i in range(2):
+            new_nodes = permutable[-(i+1):] + permutable[:-(i+1)]
+            NNI_tree = self.NNI_generate_topology(chosen_node, new_nodes)
+            NNI_tree.generate_random_branch_lengths(distribution_params=distribution_params)
+            _, NNI_tree.loglikelihood = NNI_tree.calculate_likelihood(log=True)
+
+            delta_log_likelihood = NNI_tree.loglikelihood - self.loglikelihood
+            if distribution_params["distribution"] == "exponential": 
+                if not hasattr(self, 'L'):
+                    self.L = self.calculate_total_tree_length() # total tree length initial tree
+                NNI_tree.L = NNI_tree.calculate_total_tree_length() # total tree length proposal tree
+                delta_log_likelihood -= (NNI_tree.L - self.L) / distribution_params["scale"] # lambda of exponential distirbution, interval of uniform distribution
+            elif distribution_params["distribution"] == "uniform":
+                pass
+            rho = np.min([1, np.exp(delta_log_likelihood)])
+
+            if np.random.random() < rho:
+                NNI_tree.accepted = True
+                return NNI_tree
+        
+        self.accepted = False
+        return self
+    
+    # Visualization
     def draw(self, figsize=(4,4)):
         _, ax = plt.subplots(figsize=figsize)
         Phylo.draw(self, axes=ax)
