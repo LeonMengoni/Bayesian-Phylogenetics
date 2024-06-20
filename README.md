@@ -92,51 +92,63 @@ $$
 P(\lbrace t\rbrace) = \prod_{i=1}^E P(t_i) = \prod_{i=1}^E \lambda e^{-\lambda t_i} \propto \exp\left({-\lambda\sum_{i=1}^E t_i}\right) \propto e^{-\lambda L}
 $$
 
-where $L$ is the total length of the tree, defined as the sum of all the branch lengths. If the individual branch lengths are distributed exponentially, the distribution of their sum will be a gamma distribution. Therefore, a different approach could be to sample the total tree length $L$ from a gamma distribution and then obtain the individual branch lengths proportionally with respect to a Dirichlet distribution. (**TODO**)
+where $L$ is the total length of the tree, defined as the sum of all the branch lengths (and $E$ is of course the total number of branches in the tree). If the individual branch lengths are distributed exponentially, the distribution of their sum will be a gamma distribution. Therefore, a different approach could be to sample the total tree length $L$ from a gamma distribution and then obtain the individual branch lengths proportionally with respect to a Dirichlet distribution. (**TODO**)
 
 ## 4. Likelihood calculation: Felsenstein's pruning algorithm
 
-Without entering into the technical details of the calculation of the Likelihood function. **TODO** 
+We can write the likelihood function as:
+
+$$
+\mathcal{L}(\boldsymbol{\theta}) = P(D|\boldsymbol{\theta}) = \prod_{s=1}^{S} P(D_s|\boldsymbol{\theta}) = \prod_{s=1}^{S} P(\lbrace B_i^s\rbrace|\boldsymbol{\theta})
+$$
+
+where $D_s = \lbrace B_i^s\rbrace$ indicates the sequence of bases $B_i$ (for all species considered) present at site $s\in\lbrace 1, 2,\cdots S\rbrace$, where $S$ is the sequence length. Taking as an example part of the data shown previously
+
+```
+Saimiri_sciureus               ATGACCTCAC...
+Callicebus_donacophilus        ATGACCATTA...
+Cebus_albifrons                ATGACCTCTC...
+```
+
+we would write $P(D_1|\boldsymbol{\theta}) = P(AAA|\boldsymbol{\theta})$ or $P(D_7|\boldsymbol{\theta}) = P(TAT|\boldsymbol{\theta})$. The individual terms are calculated using Felsenstein's pruning algorithm [[1]](#1).
 
 ## 5. MCMC simulation: traversing tree space
 
-As we said previously, having set $\alpha = 1$, the parameters of our model are the tree topology and the branch lengths: $\boldsymbol{\theta} = (T, \lbrace t_e\rbrace)$.
+As we said previously, having set $\alpha = 1$, the parameters of our model are the tree topology and the branch lengths: $\boldsymbol{\theta} = (T, \lbrace t_e\rbrace)$. Our data is simply a list of genetic sequences: $D = (AGCTGA, GGCTGA, \dots , AGCTCC)$. The posterior is:
 
-Our data is simply a list of genetic sequences: $D = (AGCTGA, GGCTGA, \dots , AGCTCC)$
-
-The posterior is:
-
-$$ 
+$$
 P(\boldsymbol{\theta}|D) = \frac{P(D|\boldsymbol{\theta})\cdot P(\boldsymbol{\theta})}{P(D)} \propto \mathcal{L}(\boldsymbol{\theta})\cdot P(\boldsymbol{\theta})
 $$
 
 where $\mathcal{L}(\boldsymbol{\theta})$ is the Felsenstein likelihood and $P(\boldsymbol{\theta})$ is the prior.
 
-To sample the posterior we use the **Metropolis algorithm**; therefore, given $\pi(\boldsymbol{\theta}) = P(\boldsymbol{\theta}|D)$ as the stationary distribution of the Markov Chain, the Metropolis acceptance ratio is:
+To sample the posterior we use the **Metropolis-Hastings algorithm**; therefore, given $\pi(\boldsymbol{\theta}) = P(\boldsymbol{\theta}|D)$ as the stationary distribution of the Markov Chain, the Metropolis-Hastings acceptance ratio is:
 
 $$
-r = \min\left\lbrace 1, \frac{\pi(\boldsymbol{\theta'})}{\pi(\boldsymbol{\theta})}\right\rbrace 
-= \min\left\lbrace 1, \frac{\mathcal{L}(\boldsymbol{\theta'})P(\boldsymbol{\theta'})}{\mathcal{L}(\boldsymbol{\theta})P(\boldsymbol{\theta})}\right\rbrace 
-= \min\left\lbrace 1, \frac{\mathcal{L}(\boldsymbol{\theta'})P(\lbrace t_e'\rbrace)}{\mathcal{L}(\boldsymbol{\theta})P(\lbrace t_e\rbrace)}\right\rbrace
+r = \min\left\lbrace 1, \frac{\pi(\boldsymbol{\theta'})}{\pi(\boldsymbol{\theta})} \frac{Q(\boldsymbol{\theta}|\boldsymbol{\theta'})}{Q(\boldsymbol{\theta'}|\boldsymbol{\theta})}\right\rbrace 
+= \min\left\lbrace 1, \frac{\mathcal{L}(\boldsymbol{\theta'})}{\mathcal{L}(\boldsymbol{\theta})}\frac{P(\boldsymbol{\theta'})}{P(\boldsymbol{\theta})}\frac{Q(\boldsymbol{\theta}|\boldsymbol{\theta'})}{Q(\boldsymbol{\theta'}|\boldsymbol{\theta})}\right\rbrace
+= \min\left\lbrace 1, \frac{\mathcal{L}(\boldsymbol{\theta'})}{\mathcal{L}(\boldsymbol{\theta})}\frac{P(\lbrace t_e'\rbrace)}{P(\lbrace t_e\rbrace)}\frac{Q(\boldsymbol{\theta}|\boldsymbol{\theta'})}{Q(\boldsymbol{\theta'}|\boldsymbol{\theta})}\right\rbrace
 $$
 
 where we have simplified $P(T)$ out of the equation since it is uniform. 
 
-- If the prior distribution on the branch lengths is **uniform**, the acceptance ratio simplifies to a likelihood ratio:
+- If the prior distribution on the branch lengths is **uniform**, the acceptance ratio simplifies to:
 
 $$
-r = \min\left\lbrace 1, \frac{\mathcal{L}(\boldsymbol{\theta'})}{\mathcal{L}(\boldsymbol{\theta})}\right\rbrace
-= \min\left\lbrace 1, e^{\ln{\mathcal{L}(\boldsymbol{\theta'})}-\ln{\mathcal{L}(\boldsymbol{\theta})}}\right\rbrace
+r = \min\left\lbrace 1, \frac{\mathcal{L}(\boldsymbol{\theta'})}{\mathcal{L}(\boldsymbol{\theta})}\frac{Q(\boldsymbol{\theta}|\boldsymbol{\theta'})}{Q(\boldsymbol{\theta'}|\boldsymbol{\theta})}\right\rbrace
 $$
 
 - If we assume the branch lengths to follow an **exponential** distribution, we can introduce the total tree length $L$ again, and calculate the acceptance ratio as:
 
 $$
-r = \min\left\lbrace 1, \frac{\mathcal{L}(\boldsymbol{\theta'})}{\mathcal{L}(\boldsymbol{\theta})}e^{-\lambda (L'-L)}\right\rbrace
-= \min\left\lbrace 1, e^{\ln{\mathcal{L}(\boldsymbol{\theta'})}-\ln{\mathcal{L}(\boldsymbol{\theta})}-\lambda (L'-L)}\right\rbrace
+r = \min\left\lbrace 1, \frac{\mathcal{L}(\boldsymbol{\theta'})}{\mathcal{L}(\boldsymbol{\theta})}e^{-\lambda (L'-L)}\frac{Q(\boldsymbol{\theta}|\boldsymbol{\theta'})}{Q(\boldsymbol{\theta'}|\boldsymbol{\theta})}\right\rbrace
 $$
 
+Every step in the Markov chain is determined by a double proposal: first, a new tree topology is proposed according to a Nearest Neighbor Interchange (NNI) or a Subtree Prune and Regraft (described in [[1]](#1) and [[2]](#2)); second, a new set of branches is proposed according to $Q(\lbrace t'\rbrace|\lbrace t\rbrace)$, which is described by a so-called _Scaling move_. In practice, a scaling factor is generated uniformly from $\mathcal{U}\left[\frac{1}{\lambda},\lambda\right]$, which multiplies the current branch length to obtain the new branch length, as shown in figure
+
 ## 6. Convergence diagnosis
+
+Once the Markov Chain is set up and running, we have to run it long enough until convergence, to obtain samples from the posterior distribution. This is one of the main issues with MCMC, in general. In our case, the sheer size of the parameter space makes it practically impossible to be confident of having reached convergence. 
 
 ## 7. Tree summarization
 
