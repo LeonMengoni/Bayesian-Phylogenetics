@@ -146,11 +146,17 @@ $$
 **TODO**
 Add tree files that are used in the code
 Calculate overall tree length in MCMC run of python code 
+Generate artificial data with uniform or exponential or other and compare inference with uniform or exponential assumption.
 
 **NOTE**
 Branch lengths sampled by the RevBayes algorithm:
 - terminal branches are typically longer
 - internal branches are shorter
+ 
+Initial tree (and every NNI tree) has to be rooted with specified outgroup: if outgroup is fixed, there is no possibility that the NNI eligible node is a child of the root, therefore basically we simplify the whole process. 
+
+When calculating the likelihood, does the ougroup become important? We include the outgroup in the likelihood calculation.
+
 
 ## References
 
