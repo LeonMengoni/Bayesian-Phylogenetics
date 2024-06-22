@@ -91,7 +91,7 @@ $$
 P(\lbrace t\rbrace) = \prod_{i=1}^E P(t_i) = \prod_{i=1}^E \lambda e^{-\lambda t_i} \propto \exp\left({-\lambda\sum_{i=1}^E t_i}\right) \propto e^{-\lambda L}
 $$
 
-where $L$ is the total length of the tree, defined as the sum of all the branch lengths (and $E$ is of course the total number of branches in the tree). If the individual branch lengths are distributed exponentially, the distribution of their sum will be a gamma distribution. Therefore, a different approach could be to sample the total tree length $L$ from a gamma distribution and then obtain the individual branch lengths proportionally with respect to a Dirichlet distribution. (**TODO**)
+where $L$ is the total length of the tree, defined as the sum of all the branch lengths (and $E$ is of course the total number of branches in the tree).
 
 ## 4. Likelihood calculation: Felsenstein's pruning algorithm
 
@@ -152,6 +152,24 @@ Every step in the Markov chain is determined by a double proposal: first, a new 
 ## 6. Convergence diagnosis
 
 Once the Markov Chain is set up and running, we have to run it long enough until convergence, to obtain samples from the posterior distribution. This is one of the main issues with MCMC, in general. In our case, the sheer size of the parameter space makes it practically impossible to be confident of having reached convergence. One strategy is to run multiple chains from different starting points and compare the results, since these should converge to the same distribution [[4]](#4).
+
+## Files in the repository
+
+`settings.py` contains some global variables.
+
+`utils.py` contains a series of "utility" functions that will be called multiple times in other files.
+
+`TreeClass.py` defines the `PhylogeneticTree` class, which inherits from the `BaseTree.Tree` class of `Bio.Phylo` (Biopython).
+
+`Testing.ipynb` is a jupyter notebook that tests the functions and class constructed in the previous files. 
+
+`data_generator.py` generates artificial data.
+
+`MCMC.py` defines the MCMC `Sampler` class and some other functions. 
+
+`Phylogenetic_MCMC.ipynb` is an attempt at running the previous `Sampler` in python.
+
+`BayesianPhylogenetics.ipynb` analyzes the artificial data by using the `RevBayes` scripts.  
 
 ## References
 
